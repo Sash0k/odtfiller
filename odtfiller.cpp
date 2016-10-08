@@ -3,7 +3,6 @@ TODO: новый входной формат, закрытие файлов, р�
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <iconv.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -323,23 +322,8 @@ int main(int argc, char** argv){
 		return 1;
 	}	
 	fclose(fi);
-//Смена кодировки	
-	iconv_t iconv_handle = iconv_open ("UTF-8", "CP1251");
-	if(iconv_handle==(iconv_t)(-1)){
-		fprintf(stderr,"iconv_open error\n");
-		return 1;
-	}
-	char *inbuf=buf;
-	char *p_outbuf=outbuf;
-	size_t outbytesleft=sstat.st_size*3;
-	size_t r = iconv (iconv_handle,
-              &inbuf, &inbytesleft,
-              &p_outbuf, &outbytesleft);
-	if(r==(size_t)(-1)){
-		fprintf(stderr,"iconv error\n");
-		return 1;
-	}	
-	iconv_close(iconv_handle);	
+//Смена кодировки не нужна, использую UTF-8
+	outbuf=buf;
 	
 	getTemplateFromXml(&pTemplateFile, outbuf);
 	

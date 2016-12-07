@@ -289,14 +289,13 @@ void getTemplateFromXml(const char** templateFileName, const string xmlStr){
 
 int main(int argc, char** argv){
 	if(argc<1+2){
-		fprintf(stderr,"usage: program xmlfile template [path2copyfile_templates [output file]]\n");
+		fprintf(stderr,"usage: program xmlfile template [output path]\n");
 		return 1;		
 	}
 	const char* pXmlFile = argv[1];
 	const char* pTemplateFile = argv[2];
-	if(argc>=1+3)
-		path2copyfile_templates = argv[3];
-	char *output_file_name = (argc>=1+4)?argv[4]:NULL;
+	const char* pOutPath = (argc>=1+3)?argv[3]:NULL;
+	char *output_file_name = NULL; //(argc>=1+4)?argv[4]:NULL;
 	bool f_open_output_file = (output_file_name == NULL);
 
 //Считывание файла	
@@ -385,8 +384,15 @@ int main(int argc, char** argv){
 		time_t rawtime = time (NULL);
 		struct tm * timeinfo = localtime ( &rawtime );	
 	
+		strcpy(output_file_name, (pOutPath)?(pOutPath):".");
+		int len = strlen(output_file_name);
+		if (output_file_name[len-1] != SLASH) {
+			output_file_name[len] = SLASH;
+			output_file_name[len+1] = '\0';
+		}
+
 		const char* lastSlash = strrchr(pTemplateFile, SLASH);
-		strcpy(output_file_name, (lastSlash)?(lastSlash+1):pTemplateFile);
+		strcat(output_file_name, (lastSlash)?(lastSlash+1):pTemplateFile);
 		char *p_point=strrchr(output_file_name,'.');
 		if(!p_point){
 			free(output_file_name);

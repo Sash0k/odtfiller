@@ -376,7 +376,8 @@ int main(int argc, char** argv){
 	}
 	int r;	
 	if(!output_file_name){
-		if ((output_file_name=(char *)malloc(strlen(pTemplateFile)+30)) == NULL) {
+    int path_len = pOutPath ? strlen(pOutPath) : 1;
+		if ((output_file_name=(char *)malloc(strlen(pTemplateFile)+path_len+31)) == NULL) {
 			fprintf(stderr, "malloc error\n");	
 			return 1;
 		}
@@ -405,6 +406,7 @@ int main(int argc, char** argv){
 	}
 	if((r = zip_close_into_new_file(zs, output_file_name))<0)
 		fprintf(stderr, "zip_close error %i %s\n", r, output_file_name);
+  else fprintf(stdout, "%s\n", output_file_name);
 
 	free(output_file_name);
 }

@@ -296,7 +296,6 @@ int main(int argc, char** argv){
 	const char* pTemplateFile = argv[2];
 	const char* pOutPath = (argc>=1+3)?argv[3]:NULL;
 	char *output_file_name = NULL; //(argc>=1+4)?argv[4]:NULL;
-	bool f_open_output_file = (output_file_name == NULL);
 
 //Считывание файла	
 	struct stat sstat;
@@ -406,12 +405,7 @@ int main(int argc, char** argv){
 	}
 	if((r = zip_close_into_new_file(zs, output_file_name))<0)
 		fprintf(stderr, "zip_close error %i %s\n", r, output_file_name);
-#ifdef _WIN32
-//Открытие созданного файла
-	if(f_open_output_file){
-		ShellExecute(NULL, "open", output_file_name, NULL, NULL, SW_SHOWNORMAL);
-	}
-#endif
+
 	free(output_file_name);
 }
 	free(buf);

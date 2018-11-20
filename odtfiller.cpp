@@ -289,13 +289,13 @@ void getTemplateFromXml(const char** templateFileName, const string xmlStr){
 
 int main(int argc, char** argv){
 	if(argc<1+2){
-		fprintf(stderr,"usage: program xmlfile template [output path]\n");
+		fprintf(stderr,"usage: program xmlfile template [output path] [output name]\n");
 		return 1;		
 	}
 	const char* pXmlFile = argv[1];
 	const char* pTemplateFile = argv[2];
 	const char* pOutPath = (argc>=1+3)?argv[3]:NULL;
-	char *output_file_name = NULL; //(argc>=1+4)?argv[4]:NULL;
+	const char* pOutName = (argc>=1+4)?argv[4]:NULL;
 
 //Считывание файла	
 	struct stat sstat;
@@ -374,39 +374,48 @@ int main(int argc, char** argv){
 	}else{
 		fprintf(stderr, "zip_name_locate error\n");
 	}
-	int r;	
-	if(!output_file_name){
-    int path_len = pOutPath ? strlen(pOutPath) : 1;
+	int r;
+	char *output_file_name = NULL;
+	if(true){
+        short path_len = pOutPath ? strlen(pOutPath) : 1;
+        
 		if ((output_file_name=(char *)malloc(strlen(pTemplateFile)+path_len+31)) == NULL) {
 			fprintf(stderr, "malloc error\n");	
 			return 1;
 		}
-		time_t rawtime = time (NULL);
-		struct tm * timeinfo = localtime ( &rawtime );	
 	
 		strcpy(output_file_name, (pOutPath)?(pOutPath):".");
-		int len = strlen(output_file_name);
+		short len = strlen(output_file_name);
 		if (output_file_name[len-1] != SLASH) {
 			output_file_name[len] = SLASH;
 			output_file_name[len+1] = '\0';
 		}
-
-		const char* lastSlash = strrchr(pTemplateFile, SLASH);
-		strcat(output_file_name, (lastSlash)?(lastSlash+1):pTemplateFile);
-		char *p_point=strrchr(output_file_name,'.');
-		if(!p_point){
-			free(output_file_name);
-			fprintf(stderr, "template file name must contain point\n");
-			return 1;
+		
+		if (pOutName) {
+			strcat(output_file_name, pOutName);
 		}
-		char ext[3+1];
-		for(int i=0;i<sizeof(ext);i++)
-			ext[i]=*(p_point+1+i);
-    	sprintf(p_point, "%i_%i_%i__%i_%i_%i.%s", timeinfo->tm_year+1900,timeinfo->tm_mon+1,	timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec, ext);
+		else {
+			const char* lastSlash = strrchr(pTemplateFile, SLASH);
+			strcat(output_file_name, (lastSlash)?(lastSlash+1):pTemplateFile);
+			char *p_point=strrchr(output_file_name,'.');
+			if(!p_point){
+				free(output_file_name);
+				fprintf(stderr, "template file name must contain point\n");
+				return 1;
+			}
+			char ext[3+1];
+			for(short i=0;i<sizeof(ext);i++)
+				ext[i]=*(p_point+1+i);
+
+			time_t rawtime = time (NULL);
+			struct tm * timeinfo = localtime ( &rawtime );	
+
+			sprintf(p_point, "%i-%i-%i_%i-%i-%i.%s", timeinfo->tm_year+1900,timeinfo->tm_mon+1,	timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec, ext);
+		}
 	}
 	if((r = zip_close_into_new_file(zs, output_file_name))<0)
 		fprintf(stderr, "zip_close error %i %s\n", r, output_file_name);
-  else fprintf(stdout, "%s\n", output_file_name);
+    else fprintf(stdout, "%s\n", output_file_name);
 
 	free(output_file_name);
 }
